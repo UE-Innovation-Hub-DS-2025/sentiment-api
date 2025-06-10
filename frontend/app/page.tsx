@@ -9,6 +9,14 @@ import SentimentAnalyzer from "./components/SentimentAnalyzer";
 export const metadata: Metadata = {
   title: "Sentiment Analyzer",
   description: "Analyze the sentiment of any text using advanced AI models",
+  icons: {
+    icon: [
+      {
+        url: "/favicon.svg",
+        type: "image/svg+xml",
+      },
+    ],
+  },
 };
 
 export default function Page() {
