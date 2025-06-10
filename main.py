@@ -1,5 +1,6 @@
 import os
 from fastapi import FastAPI, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from typing import List, Union, Optional
 import joblib
@@ -26,6 +27,15 @@ label_map = {0: "negative", 1: "positive"}
 
 # FastAPI app
 app = FastAPI(title="Sentiment Analysis API")
+
+# Add CORS middleware
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # Allows all origins
+    allow_credentials=True,
+    allow_methods=["*"],  # Allows all methods
+    allow_headers=["*"],  # Allows all headers
+)
 
 class PredictRequest(BaseModel):
     model: str
