@@ -32,7 +32,6 @@ ENV/
 *.swo
 
 # Model files
-models/random_forest_sentiment_model.joblib
 
 # Logs
 *.log
