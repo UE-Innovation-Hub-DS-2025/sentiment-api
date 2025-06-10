@@ -2,7 +2,7 @@ import os
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
-from typing import List, Union, Optional
+from typing import List, Union, Optional, Dict
 import joblib
 import warnings
 import logging
@@ -80,6 +80,23 @@ class PredictResponse(BaseModel):
     model: str
     confidence: Optional[float] = None
     confidence_text: Optional[str] = None
+
+class HealthResponse(BaseModel):
+    status: str
+    models_loaded: Dict[str, bool]
+    vectorizer_loaded: bool
+
+@app.get("/", response_model=HealthResponse)
+@app.get("/health", response_model=HealthResponse)
+def health_check():
+    """
+    Health check endpoint that returns the status of the API and loaded models
+    """
+    return HealthResponse(
+        status="healthy",
+        models_loaded={name: name in models for name in model_files.keys()},
+        vectorizer_loaded=vectorizer is not None
+    )
 
 @app.post("/predict", response_model=PredictResponse)
 def predict_sentiment(request: PredictRequest):
