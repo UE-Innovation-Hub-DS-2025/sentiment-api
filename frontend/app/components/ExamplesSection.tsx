@@ -8,7 +8,7 @@ import {
   CardHeader,
   CardTitle,
 } from "../../components/ui/card";
-import { exampleTexts } from "../lib/constants";
+import { exampleTexts } from "../../app/lib/constants";
 
 interface ExamplesSectionProps {
   onExampleClick: (text: string) => void;
