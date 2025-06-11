@@ -23,7 +23,7 @@ import { Loader2, Brain, MessageCircle, Sparkles } from "lucide-react";
 import LoadingState from "./LoadingState";
 import ResultsSection from "./ResultsSection";
 import ExamplesSection from "./ExamplesSection";
-import { models, deepLearningModels } from "../lib/constants";
+import { models, deepLearningModels } from "@/app/lib/constants";
 
 interface SentimentResult {
   text: string;
