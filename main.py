@@ -15,6 +15,8 @@ logger = logging.getLogger(__name__)
 # Define the path to the models directory
 MODELS_DIR = os.path.join(os.path.dirname(__file__), 'models')
 
+print(os.listdir(MODELS_DIR))
+
 # Load models and vectorizer with error handling
 model_files = {
     "logistic_regression": "logistic_regression_sentiment_model.joblib",
@@ -37,9 +39,11 @@ def safe_load_model(filepath):
 
 # Load vectorizer first
 vectorizer_path = os.path.join(MODELS_DIR, 'tfidf_vectorizer.joblib')
+print(vectorizer_path)
 vectorizer = safe_load_model(vectorizer_path)
-if vectorizer is None:
-    raise RuntimeError("Failed to load TF-IDF vectorizer. Please ensure the model file exists and is compatible.")
+
+# if vectorizer is None:
+#     raise RuntimeError("Failed to load TF-IDF vectorizer. Please ensure the model file exists and is compatible.")
 
 # Load models
 for name, filename in model_files.items():
@@ -51,8 +55,10 @@ for name, filename in model_files.items():
     else:
         logger.warning(f"Failed to load model: {name}")
 
-if not models:
-    raise RuntimeError("No models could be loaded. Please check model files and compatibility.")
+# if not models:
+#     raise RuntimeError("No models could be loaded. Please check model files and compatibility.")
+
+print(models)
 
 # Hardcoded label mapping (adjust as needed)
 label_map = {0: "negative", 1: "positive"}
