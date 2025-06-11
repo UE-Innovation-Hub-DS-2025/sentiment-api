@@ -7,10 +7,14 @@ import joblib
 import warnings
 import logging
 from sklearn.exceptions import InconsistentVersionWarning
+import sklearn
 
 # Set up logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
+
+# Log scikit-learn version
+logger.info(f"Current scikit-learn version: {sklearn.__version__}")
 
 # Define the path to the models directory
 MODELS_DIR = os.path.join(os.path.dirname(__file__), 'models')
@@ -35,6 +39,10 @@ def safe_load_model(filepath):
         if os.path.exists(filepath):
             logger.info(f"File size: {os.path.getsize(filepath)} bytes")
             logger.info(f"File permissions: {oct(os.stat(filepath).st_mode)[-3:]}")
+            # Try to read the first few bytes to check if it's a valid joblib file
+            with open(filepath, 'rb') as f:
+                header = f.read(8)
+                logger.info(f"File header: {header}")
         
         with warnings.catch_warnings():
             warnings.simplefilter("ignore", InconsistentVersionWarning)
