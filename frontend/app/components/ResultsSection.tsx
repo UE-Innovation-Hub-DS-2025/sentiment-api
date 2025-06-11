@@ -1,8 +1,8 @@
 import { motion } from "framer-motion";
 import { Brain, MessageCircle, TrendingUp } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import { models } from "@/app/lib/constants";
+import { Button } from "../../components/ui/button";
+import { Card, CardContent } from "../../components/ui/card";
+import { models } from "../lib/constants";
 
 interface SentimentResult {
   text: string;

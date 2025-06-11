@@ -8,22 +8,22 @@ import {
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
-import { Textarea } from "@/components/ui/textarea";
-import { Button } from "@/components/ui/button";
+} from "../../components/ui/card";
+import { Textarea } from "../../components/ui/textarea";
+import { Button } from "../../components/ui/button";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
-import { Label } from "@/components/ui/label";
+} from "../../components/ui/select";
+import { Label } from "../../components/ui/label";
 import { Loader2, Brain, MessageCircle, Sparkles } from "lucide-react";
 import LoadingState from "./LoadingState";
 import ResultsSection from "./ResultsSection";
 import ExamplesSection from "./ExamplesSection";
-import { models, deepLearningModels } from "@/app/lib/constants";
+import { models, deepLearningModels } from "../lib/constants";
 
 interface SentimentResult {
   text: string;

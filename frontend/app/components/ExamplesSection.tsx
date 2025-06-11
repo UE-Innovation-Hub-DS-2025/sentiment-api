@@ -1,14 +1,14 @@
 import { motion } from "framer-motion";
 import { MessageCircle } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
+import { Badge } from "../../components/ui/badge";
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
-import { exampleTexts } from "@/app/lib/constants";
+} from "../../components/ui/card";
+import { exampleTexts } from "../lib/constants";
 
 interface ExamplesSectionProps {
   onExampleClick: (text: string) => void;
