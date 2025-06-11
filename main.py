@@ -58,7 +58,7 @@ for name, filename in model_files.items():
 # if not models:
 #     raise RuntimeError("No models could be loaded. Please check model files and compatibility.")
 
-print(models)
+print('models', models)
 
 # Hardcoded label mapping (adjust as needed)
 label_map = {0: "negative", 1: "positive"}
