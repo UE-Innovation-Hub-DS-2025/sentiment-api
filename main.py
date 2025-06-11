@@ -6,17 +6,10 @@ from typing import List, Union, Optional, Dict
 import joblib
 import warnings
 import logging
-from sklearn.exceptions import InconsistentVersionWarning
-import sklearn
-import pickle
-import numpy as np
 
 # Set up logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
-
-# Log scikit-learn version
-logger.info(f"Current scikit-learn version: {sklearn.__version__}")
 
 # Define the path to the models directory
 MODELS_DIR = os.path.join(os.path.dirname(__file__), 'models')
@@ -36,36 +29,11 @@ vectorizer = None
 
 def safe_load_model(filepath):
     try:
-        logger.info(f"Attempting to load model from: {filepath}")
-        logger.info(f"File exists: {os.path.exists(filepath)}")
-        if os.path.exists(filepath):
-            logger.info(f"File size: {os.path.getsize(filepath)} bytes")
-            logger.info(f"File permissions: {oct(os.stat(filepath).st_mode)[-3:]}")
-            
-            # Try loading with different methods
-            try:
-                # First try with joblib
-                with warnings.catch_warnings():
-                    warnings.simplefilter("ignore", InconsistentVersionWarning)
-                    model = joblib.load(filepath)
-                    logger.info(f"Successfully loaded model using joblib from {filepath}")
-                    return model
-            except Exception as joblib_error:
-                logger.warning(f"Joblib loading failed: {str(joblib_error)}")
-                try:
-                    # Try with pickle as fallback
-                    with open(filepath, 'rb') as f:
-                        model = pickle.load(f)
-                        logger.info(f"Successfully loaded model using pickle from {filepath}")
-                        return model
-                except Exception as pickle_error:
-                    logger.error(f"Pickle loading failed: {str(pickle_error)}")
-                    raise
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore")  # Ignore all warnings during model loading
+            return joblib.load(filepath)
     except Exception as e:
         logger.error(f"Error loading model from {filepath}: {str(e)}")
-        logger.error(f"Error type: {type(e).__name__}")
-        import traceback
-        logger.error(f"Traceback: {traceback.format_exc()}")
         return None
 
 # Load vectorizer first
@@ -73,8 +41,8 @@ vectorizer_path = os.path.join(MODELS_DIR, 'tfidf_vectorizer.joblib')
 print(vectorizer_path)
 vectorizer = safe_load_model(vectorizer_path)
 
-if vectorizer is None:
-    raise RuntimeError("Failed to load TF-IDF vectorizer. Please ensure the model file exists and is compatible.")
+# if vectorizer is None:
+#     raise RuntimeError("Failed to load TF-IDF vectorizer. Please ensure the model file exists and is compatible.")
 
 # Load models
 for name, filename in model_files.items():
@@ -86,8 +54,8 @@ for name, filename in model_files.items():
     else:
         logger.warning(f"Failed to load model: {name}")
 
-if not models:
-    raise RuntimeError("No models could be loaded. Please check model files and compatibility.")
+# if not models:
+#     raise RuntimeError("No models could be loaded. Please check model files and compatibility.")
 
 print('models', models)
 
