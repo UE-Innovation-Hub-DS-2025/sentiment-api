@@ -8,6 +8,8 @@ import warnings
 import logging
 from sklearn.exceptions import InconsistentVersionWarning
 import sklearn
+import pickle
+import numpy as np
 
 # Set up logging
 logging.basicConfig(level=logging.INFO)
@@ -39,16 +41,26 @@ def safe_load_model(filepath):
         if os.path.exists(filepath):
             logger.info(f"File size: {os.path.getsize(filepath)} bytes")
             logger.info(f"File permissions: {oct(os.stat(filepath).st_mode)[-3:]}")
-            # Try to read the first few bytes to check if it's a valid joblib file
-            with open(filepath, 'rb') as f:
-                header = f.read(8)
-                logger.info(f"File header: {header}")
-        
-        with warnings.catch_warnings():
-            warnings.simplefilter("ignore", InconsistentVersionWarning)
-            model = joblib.load(filepath)
-            logger.info(f"Successfully loaded model from {filepath}")
-            return model
+            
+            # Try loading with different methods
+            try:
+                # First try with joblib
+                with warnings.catch_warnings():
+                    warnings.simplefilter("ignore", InconsistentVersionWarning)
+                    model = joblib.load(filepath)
+                    logger.info(f"Successfully loaded model using joblib from {filepath}")
+                    return model
+            except Exception as joblib_error:
+                logger.warning(f"Joblib loading failed: {str(joblib_error)}")
+                try:
+                    # Try with pickle as fallback
+                    with open(filepath, 'rb') as f:
+                        model = pickle.load(f)
+                        logger.info(f"Successfully loaded model using pickle from {filepath}")
+                        return model
+                except Exception as pickle_error:
+                    logger.error(f"Pickle loading failed: {str(pickle_error)}")
+                    raise
     except Exception as e:
         logger.error(f"Error loading model from {filepath}: {str(e)}")
         logger.error(f"Error type: {type(e).__name__}")
