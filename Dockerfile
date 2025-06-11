@@ -17,28 +17,29 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 COPY requirements.txt .
 RUN pip install --upgrade pip && pip install --no-cache-dir -r requirements.txt
 
-# Create models directory
-RUN mkdir -p /app/models
+# Create models directory with proper permissions
+RUN mkdir -p /app/models && chmod 755 /app/models
 
-# Copy models first (before other files)
-COPY models/tfidf_vectorizer.joblib /app/models/
-COPY models/naive_bayes_sentiment_model.joblib /app/models/
-COPY models/random_forest_sentiment_model.joblib /app/models/
-COPY models/svm_sentiment_model.joblib /app/models/
-COPY models/logistic_regression_sentiment_model.joblib /app/models/
+# Copy models with verification
+COPY --chmod=644 models/tfidf_vectorizer.joblib /app/models/ && \
+    COPY --chmod=644 models/naive_bayes_sentiment_model.joblib /app/models/ && \
+    COPY --chmod=644 models/random_forest_sentiment_model.joblib /app/models/ && \
+    COPY --chmod=644 models/svm_sentiment_model.joblib /app/models/ && \
+    COPY --chmod=644 models/logistic_regression_sentiment_model.joblib /app/models/
 
-# Verify models are copied
-RUN ls -la /app/models/
+# Verify models are copied and have correct permissions
+RUN ls -la /app/models/ && \
+    test -f /app/models/tfidf_vectorizer.joblib && \
+    test -f /app/models/naive_bayes_sentiment_model.joblib && \
+    test -f /app/models/random_forest_sentiment_model.joblib && \
+    test -f /app/models/svm_sentiment_model.joblib && \
+    test -f /app/models/logistic_regression_sentiment_model.joblib
 
 # Copy application code
 COPY . .
 
-# Set permissions
-RUN chmod -R 755 /app && \
-    chmod 644 /app/models/*.joblib
-
-# Verify final state
-RUN ls -la /app/models/
+# Set final permissions
+RUN chmod -R 755 /app
 
 # Expose port
 EXPOSE 3000

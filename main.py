@@ -30,11 +30,22 @@ vectorizer = None
 
 def safe_load_model(filepath):
     try:
+        logger.info(f"Attempting to load model from: {filepath}")
+        logger.info(f"File exists: {os.path.exists(filepath)}")
+        if os.path.exists(filepath):
+            logger.info(f"File size: {os.path.getsize(filepath)} bytes")
+            logger.info(f"File permissions: {oct(os.stat(filepath).st_mode)[-3:]}")
+        
         with warnings.catch_warnings():
             warnings.simplefilter("ignore", InconsistentVersionWarning)
-            return joblib.load(filepath)
+            model = joblib.load(filepath)
+            logger.info(f"Successfully loaded model from {filepath}")
+            return model
     except Exception as e:
         logger.error(f"Error loading model from {filepath}: {str(e)}")
+        logger.error(f"Error type: {type(e).__name__}")
+        import traceback
+        logger.error(f"Traceback: {traceback.format_exc()}")
         return None
 
 # Load vectorizer first
@@ -42,8 +53,8 @@ vectorizer_path = os.path.join(MODELS_DIR, 'tfidf_vectorizer.joblib')
 print(vectorizer_path)
 vectorizer = safe_load_model(vectorizer_path)
 
-# if vectorizer is None:
-#     raise RuntimeError("Failed to load TF-IDF vectorizer. Please ensure the model file exists and is compatible.")
+if vectorizer is None:
+    raise RuntimeError("Failed to load TF-IDF vectorizer. Please ensure the model file exists and is compatible.")
 
 # Load models
 for name, filename in model_files.items():
@@ -55,8 +66,8 @@ for name, filename in model_files.items():
     else:
         logger.warning(f"Failed to load model: {name}")
 
-# if not models:
-#     raise RuntimeError("No models could be loaded. Please check model files and compatibility.")
+if not models:
+    raise RuntimeError("No models could be loaded. Please check model files and compatibility.")
 
 print('models', models)
 
