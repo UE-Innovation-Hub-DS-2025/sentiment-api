@@ -20,12 +20,15 @@ RUN pip install --upgrade pip && pip install --no-cache-dir -r requirements.txt
 # Create models directory with proper permissions
 RUN mkdir -p /app/models && chmod 755 /app/models
 
-# Copy models with verification
-COPY --chmod=644 models/tfidf_vectorizer.joblib /app/models/ && \
-    COPY --chmod=644 models/naive_bayes_sentiment_model.joblib /app/models/ && \
-    COPY --chmod=644 models/random_forest_sentiment_model.joblib /app/models/ && \
-    COPY --chmod=644 models/svm_sentiment_model.joblib /app/models/ && \
-    COPY --chmod=644 models/logistic_regression_sentiment_model.joblib /app/models/
+# Copy models
+COPY models/tfidf_vectorizer.joblib /app/models/
+COPY models/naive_bayes_sentiment_model.joblib /app/models/
+COPY models/random_forest_sentiment_model.joblib /app/models/
+COPY models/svm_sentiment_model.joblib /app/models/
+COPY models/logistic_regression_sentiment_model.joblib /app/models/
+
+# Set permissions for model files
+RUN chmod 644 /app/models/*.joblib
 
 # Verify models are copied and have correct permissions
 RUN ls -la /app/models/ && \
