@@ -32,7 +32,7 @@ ENV/
 *.swo
 
 # Model files
-
+models/*.pkl
 
 # Logs
 *.log
