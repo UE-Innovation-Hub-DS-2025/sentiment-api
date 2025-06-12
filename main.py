@@ -34,7 +34,7 @@ model_files = {
     "logistic_regression": "logistic_regression_sentiment_model.pkl",
     "naive_bayes": "naive_bayes_sentiment_model.pkl",
     "svm": "svm_sentiment_model.pkl",
-    # "random_forest": "random_forest_sentiment_model.pkl",
+    "random_forest": "random_forest_sentiment_model.pkl",
 }
 
 models = {}
