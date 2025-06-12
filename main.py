@@ -55,10 +55,6 @@ vectorizer_path = os.path.join(MODELS_DIR, 'tfidf_vectorizer.pkl')
 print(vectorizer_path)
 vectorizer = safe_load_model(vectorizer_path)
 
-# Load label encoder
-label_encoder_path = os.path.join(MODELS_DIR, 'label_encoder.pkl')
-label_encoder = safe_load_model(label_encoder_path)
-
 # Load models
 for name, filename in model_files.items():
     model_path = os.path.join(MODELS_DIR, filename)
@@ -69,11 +65,8 @@ for name, filename in model_files.items():
     else:
         logger.warning(f"Failed to load model: {name}")
 
-# Use label encoder for mapping if available, otherwise use hardcoded mapping
-if label_encoder is not None:
-    label_map = {i: label for i, label in enumerate(label_encoder.classes_)}
-else:
-    label_map = {0: "negative", 1: "positive"}
+# Simple mapping for predictions
+label_map = {0: "Negative", 1: "Positive"}
 
 # FastAPI app
 app = FastAPI(title="Sentiment Analysis API")
@@ -130,14 +123,8 @@ def predict_sentiment(request: PredictRequest):
         X = vectorizer.transform(texts)
         # Predict
         preds = models[model_name].predict(X)
-        # Map numeric predictions to text labels
-        pred_labels = []
-        for p in preds:
-            pred_int = int(p)  # Convert numpy int to Python int
-            if pred_int in label_map:
-                pred_labels.append(label_map[pred_int])
-            else:
-                pred_labels.append("unknown")
+        # Map numeric predictions to text labels using simple mapping
+        pred_labels = [label_map[int(p)] for p in preds]
 
         # Get confidence scores using predict_proba
         confidence = None
