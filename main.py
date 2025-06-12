@@ -130,8 +130,14 @@ def predict_sentiment(request: PredictRequest):
         X = vectorizer.transform(texts)
         # Predict
         preds = models[model_name].predict(X)
-        # Map to labels and ensure they are strings
-        pred_labels = [str(label_map.get(int(p), str(p))) for p in preds]
+        # Map numeric predictions to text labels
+        pred_labels = []
+        for p in preds:
+            pred_int = int(p)  # Convert numpy int to Python int
+            if pred_int in label_map:
+                pred_labels.append(label_map[pred_int])
+            else:
+                pred_labels.append("unknown")
 
         # Get confidence scores using predict_proba
         confidence = None
