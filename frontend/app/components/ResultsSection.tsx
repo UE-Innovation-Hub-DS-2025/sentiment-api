@@ -2,7 +2,26 @@ import { motion } from "framer-motion";
 import { Brain, MessageCircle, TrendingUp } from "lucide-react";
 import { Button } from "../../components/ui/button";
 import { Card, CardContent } from "../../components/ui/card";
-import { models } from "../../app/lib/constants";
+
+// Sentiment analysis models
+const models = [
+  {
+    value: "logistic_regression",
+    label: "Logistic Regression",
+  },
+  {
+    value: "naive_bayes",
+    label: "Naive Bayes",
+  },
+  {
+    value: "svm",
+    label: "Support Vector Machine",
+  },
+  {
+    value: "random_forest",
+    label: "Random Forest",
+  },
+];
 
 interface SentimentResult {
   text: string;

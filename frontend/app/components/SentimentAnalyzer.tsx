@@ -23,7 +23,43 @@ import { Loader2, Brain, MessageCircle, Sparkles } from "lucide-react";
 import LoadingState from "./LoadingState";
 import ResultsSection from "./ResultsSection";
 import ExamplesSection from "./ExamplesSection";
-import { models, deepLearningModels } from "../../app/lib/constants";
+
+// Sentiment analysis models
+const models = [
+  {
+    value: "logistic_regression",
+    label: "Logistic Regression",
+  },
+  {
+    value: "naive_bayes",
+    label: "Naive Bayes",
+  },
+  {
+    value: "svm",
+    label: "Support Vector Machine",
+  },
+  {
+    value: "random_forest",
+    label: "Random Forest",
+  },
+];
+
+// Deep learning models (coming soon)
+const deepLearningModels = [
+  {
+    label: "BERT",
+    description: "Bidirectional Encoder Representations from Transformers",
+  },
+  {
+    label: "RoBERTa",
+    description: "Robustly Optimized BERT Pretraining Approach",
+  },
+  {
+    label: "XLNet",
+    description:
+      "Generalized Autoregressive Pretraining for Language Understanding",
+  },
+];
 
 interface SentimentResult {
   text: string;

@@ -8,7 +8,42 @@ import {
   CardHeader,
   CardTitle,
 } from "../../components/ui/card";
-import { exampleTexts } from "../../app/lib/constants";
+
+// Example texts for sentiment analysis
+const exampleTexts = [
+  {
+    text: "I absolutely love this product! It's amazing and works perfectly.",
+    sentiment: "positive",
+  },
+  {
+    text: "The service was terrible and the staff was rude. I won't be coming back.",
+    sentiment: "negative",
+  },
+  {
+    text: "The movie was okay, nothing special but not bad either.",
+    sentiment: "neutral",
+  },
+  {
+    text: "This restaurant exceeded all my expectations. The food was delicious!",
+    sentiment: "positive",
+  },
+  {
+    text: "I'm extremely disappointed with the quality of this item.",
+    sentiment: "negative",
+  },
+  {
+    text: "The customer service was exceptional, they went above and beyond!",
+    sentiment: "positive",
+  },
+  {
+    text: "The product arrived damaged and the packaging was poor.",
+    sentiment: "negative",
+  },
+  {
+    text: "The weather today is neither good nor bad, just average.",
+    sentiment: "neutral",
+  },
+];
 
 interface ExamplesSectionProps {
   onExampleClick: (text: string) => void;
