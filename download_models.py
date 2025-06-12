@@ -1,6 +1,11 @@
 import os
 import requests
 from tqdm import tqdm
+import logging
+
+# Set up logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 def download_file(url, filename):
     """
@@ -26,7 +31,7 @@ def main():
     
     # List of model files to download
     model_files = {
-        'random_forest_sentiment_model.pkl': 'https://minio-qlbxyevy.cloud-station.app/sentiment/sentiment/random_forest_sentiment_model.pkl',
+        # 'random_forest_sentiment_model.pkl': 'https://minio-qlbxyevy.cloud-station.app/sentiment/sentiment/random_forest_sentiment_model.pkl',
         'logistic_regression_sentiment_model.pkl': 'https://minio-qlbxyevy.cloud-station.app/sentiment/sentiment/logistic_regression_sentiment_model.pkl',
         'naive_bayes_sentiment_model.pkl': 'https://minio-qlbxyevy.cloud-station.app/sentiment/sentiment/naive_bayes_sentiment_model.pkl',
         'svm_sentiment_model.pkl': 'https://minio-qlbxyevy.cloud-station.app/sentiment/sentiment/svm_sentiment_model.pkl',
@@ -37,10 +42,10 @@ def main():
     for filename, url in model_files.items():
         filepath = os.path.join('models', filename)
         if not os.path.exists(filepath):
-            print(f"Downloading {filename}...")
+            logger.info(f"Downloading {filename}...")
             download_file(url, filepath)
         else:
-            print(f"{filename} already exists, skipping...")
+            logger.info(f"{filename} already exists, skipping...")
 
 if __name__ == "__main__":
     main() 

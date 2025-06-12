@@ -6,10 +6,23 @@ from typing import List, Union, Optional, Dict
 import joblib
 import warnings
 import logging
+import subprocess
+import sys
 
 # Set up logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
+
+# Check and run download_models.py if it exists
+download_script = os.path.join(os.path.dirname(__file__), 'download_models.py')
+if os.path.exists(download_script):
+    logger.info("Running download_models.py to ensure models are available...")
+    try:
+        subprocess.run([sys.executable, download_script], check=True)
+        logger.info("Successfully ran download_models.py")
+    except subprocess.CalledProcessError as e:
+        logger.error(f"Error running download_models.py: {str(e)}")
+        raise RuntimeError("Failed to download required models")
 
 # Define the path to the models directory
 MODELS_DIR = os.path.join(os.path.dirname(__file__), 'models')
@@ -18,14 +31,15 @@ print(os.listdir(MODELS_DIR))
 
 # Load models and vectorizer with error handling
 model_files = {
-    "logistic_regression": "logistic_regression_sentiment_model.joblib",
-    "naive_bayes": "naive_bayes_sentiment_model.joblib",
-    "svm": "svm_sentiment_model.joblib",
-    "random_forest": "random_forest_sentiment_model.joblib",
+    "logistic_regression": "logistic_regression_sentiment_model.pkl",
+    "naive_bayes": "naive_bayes_sentiment_model.pkl",
+    "svm": "svm_sentiment_model.pkl",
+    "random_forest": "random_forest_sentiment_model.pkl",
 }
 
 models = {}
 vectorizer = None
+label_encoder = None
 
 def safe_load_model(filepath):
     try:
@@ -37,12 +51,13 @@ def safe_load_model(filepath):
         return None
 
 # Load vectorizer first
-vectorizer_path = os.path.join(MODELS_DIR, 'tfidf_vectorizer.joblib')
+vectorizer_path = os.path.join(MODELS_DIR, 'tfidf_vectorizer.pkl')
 print(vectorizer_path)
 vectorizer = safe_load_model(vectorizer_path)
 
-# if vectorizer is None:
-#     raise RuntimeError("Failed to load TF-IDF vectorizer. Please ensure the model file exists and is compatible.")
+# Load label encoder
+label_encoder_path = os.path.join(MODELS_DIR, 'label_encoder.pkl')
+label_encoder = safe_load_model(label_encoder_path)
 
 # Load models
 for name, filename in model_files.items():
@@ -54,13 +69,11 @@ for name, filename in model_files.items():
     else:
         logger.warning(f"Failed to load model: {name}")
 
-# if not models:
-#     raise RuntimeError("No models could be loaded. Please check model files and compatibility.")
-
-print('models', models)
-
-# Hardcoded label mapping (adjust as needed)
-label_map = {0: "negative", 1: "positive"}
+# Use label encoder for mapping if available, otherwise use hardcoded mapping
+if label_encoder is not None:
+    label_map = {i: label for i, label in enumerate(label_encoder.classes_)}
+else:
+    label_map = {0: "negative", 1: "positive"}
 
 # FastAPI app
 app = FastAPI(title="Sentiment Analysis API")
