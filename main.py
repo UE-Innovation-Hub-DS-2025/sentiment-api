@@ -8,6 +8,8 @@ import warnings
 import logging
 import subprocess
 import sys
+from transformers import AutoTokenizer, AutoModelForSequenceClassification
+import torch
 
 # Set up logging
 logging.basicConfig(level=logging.INFO)
@@ -35,11 +37,14 @@ model_files = {
     "naive_bayes": "naive_bayes_sentiment_model.pkl",
     "svm": "svm_sentiment_model.pkl",
     "random_forest": "random_forest_sentiment_model.pkl",
+    "bert": None  # BERT model will be loaded differently
 }
 
 models = {}
 vectorizer = None
 label_encoder = None
+bert_tokenizer = None
+bert_model = None
 
 def safe_load_model(filepath):
     try:
@@ -55,15 +60,25 @@ vectorizer_path = os.path.join(MODELS_DIR, 'tfidf_vectorizer.pkl')
 print(vectorizer_path)
 vectorizer = safe_load_model(vectorizer_path)
 
-# Load models
+# Load BERT model and tokenizer
+try:
+    bert_tokenizer = AutoTokenizer.from_pretrained(MODELS_DIR)
+    bert_model = AutoModelForSequenceClassification.from_pretrained(MODELS_DIR)
+    models["bert"] = bert_model
+    logger.info("Successfully loaded BERT model and tokenizer")
+except Exception as e:
+    logger.error(f"Error loading BERT model: {str(e)}")
+
+# Load other models
 for name, filename in model_files.items():
-    model_path = os.path.join(MODELS_DIR, filename)
-    model = safe_load_model(model_path)
-    if model is not None:
-        models[name] = model
-        logger.info(f"Successfully loaded model: {name}")
-    else:
-        logger.warning(f"Failed to load model: {name}")
+    if filename is not None:  # Skip BERT as it's already loaded
+        model_path = os.path.join(MODELS_DIR, filename)
+        model = safe_load_model(model_path)
+        if model is not None:
+            models[name] = model
+            logger.info(f"Successfully loaded model: {name}")
+        else:
+            logger.warning(f"Failed to load model: {name}")
 
 # Simple mapping for predictions
 label_map = {0: "Negative", 1: "Positive"}
@@ -119,28 +134,45 @@ def predict_sentiment(request: PredictRequest):
     texts = request.text if isinstance(request.text, list) else [request.text]
 
     try:
-        # Vectorize input
-        X = vectorizer.transform(texts)
-        # Predict
-        preds = models[model_name].predict(X)
-        # Map numeric predictions to text labels using simple mapping
-        pred_labels = [label_map[int(p)] for p in preds]
-
-        # Get confidence scores using predict_proba
-        confidence = None
-        confidence_text = None
-        try:
-            probas = models[model_name].predict_proba(X)
-            # For each prediction, get the highest probability
-            confidences = [round(max(p) * 100, 2) for p in probas]
+        if model_name == "bert":
+            # BERT prediction
+            inputs = bert_tokenizer(texts, padding=True, truncation=True, return_tensors="pt")
+            with torch.no_grad():
+                outputs = bert_model(**inputs)
+                logits = outputs.logits
+                probabilities = torch.softmax(logits, dim=1)
+                preds = torch.argmax(probabilities, dim=1)
+                confidences = torch.max(probabilities, dim=1)[0].tolist()
+            
+            # Map predictions to labels
+            pred_labels = [label_map[int(p)] for p in preds]
+            
+            # Format confidence scores
+            confidences = [round(c * 100, 2) for c in confidences]
             if isinstance(request.text, str):
                 confidence = confidences[0]
             else:
                 confidence = confidences
             confidence_text = f"{confidence}%" if isinstance(confidence, float) else [f"{c}%" for c in confidence]
-        except AttributeError:
-            # If the model does not support predict_proba, confidence remains None
-            pass
+        else:
+            # Traditional model prediction
+            X = vectorizer.transform(texts)
+            preds = models[model_name].predict(X)
+            pred_labels = [label_map[int(p)] for p in preds]
+
+            # Get confidence scores using predict_proba
+            confidence = None
+            confidence_text = None
+            try:
+                probas = models[model_name].predict_proba(X)
+                confidences = [round(max(p) * 100, 2) for p in probas]
+                if isinstance(request.text, str):
+                    confidence = confidences[0]
+                else:
+                    confidence = confidences
+                confidence_text = f"{confidence}%" if isinstance(confidence, float) else [f"{c}%" for c in confidence]
+            except AttributeError:
+                pass
 
         # Return single value if input was a string
         if isinstance(request.text, str):
