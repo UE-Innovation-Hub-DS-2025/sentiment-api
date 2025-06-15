@@ -29,7 +29,6 @@ if os.path.exists(download_script):
 # Define the path to the models directory
 MODELS_DIR = os.path.join(os.path.dirname(__file__), 'models')
 
-print(os.listdir(MODELS_DIR))
 
 # Load models and vectorizer with error handling
 model_files = {
